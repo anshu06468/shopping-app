@@ -7,24 +7,29 @@ import { Subject } from 'rxjs';
 @Injectable()
 export class RecipeService {
    recipesChanged=new Subject<Recipe[]>()
-   private recipes:Recipe[]=[
-        new Recipe("Pani poori",
-                  "Description",
-                  'https://lazizkhana.com/wp-content/uploads/2015/09/pani-puri.jpg',
-                  [
-                    new Ingredient("bread",1),
-                    new Ingredient("meat",1)
-                  ]),
-        new Recipe("Samosa",
-                  "Description",
-                  'https://www.indianhealthyrecipes.com/wp-content/uploads/2019/11/samosa-recipe-500x500.jpg',
-                  [
-                    new Ingredient("bread",1),
-                    new Ingredient("meat",1)
-                  ])
-      ];
-
+  //  private recipes:Recipe[]=[
+  //       new Recipe("Pani poori",
+  //                 "Description",
+  //                 'https://lazizkhana.com/wp-content/uploads/2015/09/pani-puri.jpg',
+  //                 [
+  //                   new Ingredient("bread",1),
+  //                   new Ingredient("meat",1)
+  //                 ]),
+  //       new Recipe("Samosa",
+  //                 "Description",
+  //                 'https://www.indianhealthyrecipes.com/wp-content/uploads/2019/11/samosa-recipe-500x500.jpg',
+  //                 [
+  //                   new Ingredient("bread",1),
+  //                   new Ingredient("meat",1)
+  //                 ])
+  //     ];
+    private recipes:Recipe[]=[];
     constructor(private slService:ShoppingListService){}
+
+    setRecipes(recipes:Recipe[]){
+      this.recipes=recipes;
+      this.recipesChanged.next(this.recipes.slice());
+    }
     
     getRecipes(){
         return this.recipes.slice();
@@ -51,4 +56,6 @@ export class RecipeService {
       this.recipes.splice(index,1);
       this.recipesChanged.next(this.recipes.slice());
     }
+
+
 }
