@@ -1,24 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService,authReturnData } from '../auth.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-
+import { AlertComponent } from '../../shared/alert/alert.component'
+import { PlaceholderDirective } from 'src/app/shared/placeholder/placeholder.directive';
+ 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnInit ,OnDestroy{
   isLoginMode=true;
   isLoading=false;
   error:string =null;
+  @ViewChild(PlaceholderDirective,{static:false}) alertHost:PlaceholderDirective;
 
-  constructor(private authService:AuthService,private route:Router) { }
+  private closeSub:Subscription;
+
+  constructor(private authService:AuthService,private route:Router, private commponentResolver:ComponentFactoryResolver) { }
 
   ngOnInit() {
   }
-
+  onHandleError(){
+    this.error=null
+  }
   onSwithMode(){
     this.isLoginMode=!this.isLoginMode;
   }
@@ -49,11 +56,29 @@ export class AuthComponent implements OnInit {
       errorMessage=>{
         this.error=errorMessage
         // console.log(errorRes)
+        this.showErrorAlert(errorMessage);
         this.isLoading=false;
       }
     )
 
     form.reset();
+  }
+
+  private showErrorAlert(message:string){
+    const alertCmpFactory=this.commponentResolver.resolveComponentFactory(AlertComponent)
+    const hostViewContainer=this.alertHost.viewCntrlRef;
+    hostViewContainer.clear();
+    const componentRef=hostViewContainer.createComponent(alertCmpFactory);
+    componentRef.instance.message=message;
+    this.closeSub=componentRef.instance.error.subscribe(()=>{
+      this.closeSub.unsubscribe();
+      hostViewContainer.clear();
+    })
+  };
+
+  ngOnDestroy(){
+    if(this.closeSub)
+      this.closeSub.unsubscribe();
   }
 
 }
