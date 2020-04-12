@@ -26,6 +26,7 @@ export class RecipeStorageService {
     return this.http.get<Recipe[]>("https://ng-courseshoppinglist.firebaseio.com/recipes.json"
     ).pipe(
       map(response => {
+        console.log(response)
         return response.map(recipe => {
           return { ...recipe, ingredients: recipe.ingredients ? recipe.ingredients : [] };
     })
